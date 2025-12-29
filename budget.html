@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chennai Expo Budget Pro</title>
+    <style>
+        :root { --primary: #2563eb; --secondary: #64748b; --success: #22c55e; --danger: #ef4444; --fun: #f59e0b; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f8fafc; padding: 20px; color: #1e293b; }
+        .container { max-width: 1000px; margin: auto; background: white; padding: 40px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+        h1 { text-align: center; color: var(--primary); margin-bottom: 5px; }
+        p.subtitle { text-align: center; color: var(--secondary); margin-bottom: 30px; }
+        
+        .input-panel { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; background: #f1f5f9; padding: 20px; border-radius: 12px; margin-bottom: 30px; }
+        input, select { padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; width: 100%; box-sizing: border-box; }
+        
+        .btn { padding: 12px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; transition: 0.2s; }
+        .btn-add { background: var(--primary); color: white; }
+        .btn-add:hover { background: #1d4ed8; }
+        .btn-pdf { background: var(--success); color: white; width: 100%; margin-top: 20px; font-size: 16px; }
+        .btn-clear { background: #f1f5f9; color: var(--danger); font-size: 12px; margin-top: 10px; width: 100%; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { text-align: left; padding: 15px; background: #f8fafc; color: var(--secondary); border-bottom: 2px solid #e2e8f0; }
+        td { padding: 15px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+        .category-tag { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+        .tag-fun { background: #fef3c7; color: #b45309; }
+        .tag-travel { background: #dbeafe; color: #1e40af; }
+        .tag-food { background: #dcfce7; color: #166534; }
+
+        .total-section { margin-top: 30px; padding: 20px; background: #1e293b; color: white; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .amount-big { font-size: 24px; font-weight: bold; color: #fbbf24; }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <h1>Trip to Chennai</h1>
+    <p class="subtitle">Feb 05, 2026 – Feb 09, 2026 | Expo & Conference</p>
+    
+    <div class="input-panel">
+        <div>
+            <label style="font-size: 12px;">Date</label>
+            <input type="date" id="date" min="2026-02-05" max="2026-02-09" value="2026-02-05">
+        </div>
+        <div>
+            <label style="font-size: 12px;">Category</label>
+            <select id="category" onchange="updateSubOptions()">
+                <option value="Travel">Travel</option>
+                <option value="Food">Food</option>
+                <option value="Expo">Expo/College</option>
+                <option value="Entertainment">Entertainment</option>
+                <option value="Fun">Fun/Social</option>
+                <option value="Stay">Stay</option>
+                <option value="Others">Others</option>
+            </select>
+        </div>
+        <div>
+            <label style="font-size: 12px;">Option</label>
+            <select id="subCategory"></select>
+        </div>
+        <div>
+            <label style="font-size: 12px;">Details</label>
+            <input type="text" id="details" placeholder="e.g. Marina Beach snacks">
+        </div>
+        <div>
+            <label style="font-size: 12px;">Amount (₹)</label>
+            <input type="number" id="amount" placeholder="0">
+        </div>
+        <div style="display: flex; align-items: flex-end;">
+            <button class="btn btn-add" onclick="addEntry()">Add</button>
+        </div>
+    </div>
+
+    <table id="budgetTable">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Category</th>
+                <th>Details</th>
+                <th>Amount</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+
+    <div class="total-section">
+        <span>Estimated Total Budget Required:</span>
+        <span class="amount-big">₹<span id="grandTotal">0</span></span>
+    </div>
+
+    <button class="btn btn-pdf" onclick="generatePDF()">Download Budget PDF Report</button>
+    <button class="btn btn-clear" onclick="clearData()">Clear All Data & Start Over</button>
+</div>
+
+<script>
+    const subOptions = {
+        Travel: ['Metro', 'Bus (MTC)', 'Bike Rental', 'Auto/Ola/Uber', 'Train Ticket'],
+        Food: ['Breakfast', 'Lunch', 'Dinner', 'Filter Coffee/Tea', 'Snacks'],
+        Expo: ['Banner Printing', 'Model Parts', 'Registration Fee', 'Stationery'],
+        Entertainment: ['Sightseeing', 'Marina Beach', 'Movie/Theater', 'Museum Entry'],
+        Fun: ['Team Dinner', 'Games/Bowling', 'Shopping (T.Nagar)', 'Gifts'],
+        Stay: ['Hotel Room', 'Hostel/PG', 'Service Tips'],
+        Others: ['Mobile Recharge', 'Emergency Cash', 'Pharmacy', 'Miscellaneous']
+    };
+
+    let budgetData = JSON.parse(localStorage.getItem('chennai2026_v2')) || [];
+
+    function updateSubOptions() {
+        const cat = document.getElementById('category').value;
+        const sub = document.getElementById('subCategory');
+        sub.innerHTML = subOptions[cat].map(opt => `<option value="${opt}">${opt}</option>`).join('');
+    }
+
+    function addEntry() {
+        const date = document.getElementById('date').value;
+        const cat = document.getElementById('category').value;
+        const sub = document.getElementById('subCategory').value;
+        const det = document.getElementById('details').value;
+        const amt = parseFloat(document.getElementById('amount').value || 0);
+
+        if (!det || amt <= 0) { alert("Please enter details and amount"); return; }
+        
+        budgetData.push({ date, cat, sub, det, amt });
+        budgetData.sort((a, b) => new Date(a.date) - new Date(b.date));
+        saveAndRender();
+        document.getElementById('details').value = '';
+        document.getElementById('amount').value = '';
+    }
+
+    function saveAndRender() {
+        localStorage.setItem('chennai2026_v2', JSON.stringify(budgetData));
+        const body = document.getElementById('tableBody');
+        body.innerHTML = '';
+        let total = 0;
+        
+        budgetData.forEach((item, index) => {
+            total += item.amt;
+            body.innerHTML += `
+                <tr>
+                    <td>${item.date.split('-').reverse().join('/')}</td>
+                    <td><span class="category-tag tag-${item.cat.toLowerCase()}">${item.sub}</span></td>
+                    <td>${item.det}</td>
+                    <td style="font-weight:bold">₹${item.amt.toLocaleString()}</td>
+                    <td><button style="background:none; border:none; color:red; cursor:pointer;" onclick="deleteItem(${index})">✕</button></td>
+                </tr>
+            `;
+        });
+        document.getElementById('grandTotal').innerText = total.toLocaleString();
+    }
+
+    function deleteItem(i) { budgetData.splice(i, 1); saveAndRender(); }
+    function clearData() { if(confirm("Are you sure? This will delete your entire plan.")) { budgetData = []; saveAndRender(); } }
+
+    function generatePDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.setFontSize(20);
+        doc.text("Chennai Trip Budget Plan", 14, 20);
+        doc.setFontSize(10);
+        doc.text("Dates: Feb 05 - Feb 09, 2026", 14, 28);
+
+        const rows = budgetData.map(d => [d.date, d.cat + " (" + d.sub + ")", d.det, `Rs. ${d.amt}`]);
+        
+        doc.autoTable({
+            startY: 35,
+            head: [['Date', 'Category', 'Details', 'Amount']],
+            body: rows,
+            foot: [['Total', '', '', `Rs. ${document.getElementById('grandTotal').innerText}`]],
+            theme: 'grid'
+        });
+        doc.save("Chennai_Conference_Budget.pdf");
+    }
+
+    updateSubOptions();
+    saveAndRender();
+</script>
+</body>
+</html>
