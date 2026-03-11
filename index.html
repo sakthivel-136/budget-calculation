@@ -3,180 +3,504 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chennai Expo Budget Pro</title>
+    <title>Chennai Trip Group Budget (Fixed)</title>
     <style>
-        :root { --primary: #2563eb; --secondary: #64748b; --success: #22c55e; --danger: #ef4444; --fun: #f59e0b; }
-        body { font-family: 'Segoe UI', sans-serif; background: #f8fafc; padding: 20px; color: #1e293b; }
-        .container { max-width: 1000px; margin: auto; background: white; padding: 40px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
-        h1 { text-align: center; color: var(--primary); margin-bottom: 5px; }
-        p.subtitle { text-align: center; color: var(--secondary); margin-bottom: 30px; }
+        :root { 
+            --primary: #2563eb; --primary-dark: #1d4ed8;
+            --secondary: #64748b; --success: #22c55e; 
+            --danger: #ef4444; --warning: #f59e0b;
+            --bg: #f1f5f9; --card-bg: #ffffff; --border: #e2e8f0;
+        }
         
-        .input-panel { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; background: #f1f5f9; padding: 20px; border-radius: 12px; margin-bottom: 30px; }
-        input, select { padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; width: 100%; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); padding: 20px; color: #1e293b; margin: 0; }
         
-        .btn { padding: 12px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; transition: 0.2s; }
-        .btn-add { background: var(--primary); color: white; }
-        .btn-add:hover { background: #1d4ed8; }
-        .btn-pdf { background: var(--success); color: white; width: 100%; margin-top: 20px; font-size: 16px; }
-        .btn-clear { background: #f1f5f9; color: var(--danger); font-size: 12px; margin-top: 10px; width: 100%; }
+        .container { max-width: 1200px; margin: auto; background: var(--card-bg); padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        
+        h1 { color: var(--primary); margin-top: 0; text-align: center; }
+        .subtitle { text-align: center; color: var(--secondary); margin-bottom: 30px; }
 
+        /* --- Student Section --- */
+        .section-title { font-size: 16px; font-weight: bold; margin-bottom: 10px; color: var(--primary); border-bottom: 2px solid var(--border); padding-bottom: 5px; }
+        
+        .students-wrapper { display: flex; gap: 10px; align-items: center; margin-bottom: 30px; overflow-x: auto; padding-bottom: 10px; }
+        
+        .student-card {
+            min-width: 180px;
+            background: white;
+            border: 1px solid var(--border);
+            padding: 15px;
+            border-radius: 8px;
+            position: relative;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .student-card input {
+            width: 100%;
+            border: none;
+            border-bottom: 2px solid var(--border);
+            text-align: center;
+            font-weight: bold;
+            font-size: 16px;
+            padding: 5px 0;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        .student-card input:focus { outline: none; border-bottom-color: var(--primary); }
+        
+        .student-total { font-size: 20px; font-weight: 800; color: #0f172a; }
+        .remove-student {
+            position: absolute; top: 5px; right: 5px; color: var(--danger); 
+            cursor: pointer; font-size: 12px; border: 1px solid var(--border); 
+            border-radius: 50%; width: 20px; height: 20px; line-height: 18px;
+        }
+
+        .btn-add-student {
+            min-width: 50px; height: 100px; border: 2px dashed var(--secondary);
+            background: transparent; color: var(--secondary); font-weight: bold;
+            cursor: pointer; border-radius: 8px; font-size: 30px;
+        }
+        .btn-add-student:hover { border-color: var(--primary); color: var(--primary); }
+
+        /* --- Input Form --- */
+        .input-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;
+            background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 20px;
+        }
+        
+        label { display: block; font-size: 12px; font-weight: 600; color: var(--secondary); margin-bottom: 5px; }
+        input, select { width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; }
+        
+        .checkbox-area {
+            grid-column: 1 / -1;
+            background: white; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;
+        }
+        .checkbox-area label { display: inline-flex; align-items: center; margin-right: 15px; font-size: 14px; color: #333; cursor: pointer; }
+        .checkbox-area input { width: auto; margin-right: 5px; }
+
+        .btn-primary {
+            grid-column: 1 / -1;
+            background: var(--primary); color: white; border: none; padding: 12px;
+            border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 16px;
+        }
+        .btn-primary:hover { background: var(--primary-dark); }
+
+        /* --- Table --- */
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { text-align: left; padding: 15px; background: #f8fafc; color: var(--secondary); border-bottom: 2px solid #e2e8f0; }
-        td { padding: 15px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
-        .category-tag { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
-        .tag-fun { background: #fef3c7; color: #b45309; }
-        .tag-travel { background: #dbeafe; color: #1e40af; }
-        .tag-food { background: #dcfce7; color: #166534; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); }
+        th { background: #f1f5f9; font-size: 12px; text-transform: uppercase; color: var(--secondary); }
+        .amount { text-align: right; font-family: monospace; font-weight: bold; }
+        
+        /* --- PDF Section --- */
+        .pdf-section { margin-top: 30px; padding-top: 20px; border-top: 2px dashed var(--border); }
+        .pdf-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+        .btn-pdf {
+            background: var(--success); color: white; border: none; padding: 10px;
+            border-radius: 6px; cursor: pointer; font-size: 13px;
+        }
+        .btn-pdf:hover { background: #16a34a; }
 
-        .total-section { margin-top: 30px; padding: 20px; background: #1e293b; color: white; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
-        .amount-big { font-size: 24px; font-weight: bold; color: #fbbf24; }
+        /* Notifications */
+        #toast {
+            visibility: hidden; background: #333; color: #fff; text-align: center;
+            border-radius: 4px; padding: 12px; position: fixed; z-index: 1; left: 50%; bottom: 30px;
+            transform: translateX(-50%); font-size: 14px;
+        }
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+        
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
     </style>
+    <!-- Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
 
 <div class="container">
-    <h1>Trip to Chennai</h1>
-    <p class="subtitle">Feb 05, 2026 – Feb 09, 2026 | Expo & Conference</p>
-    
-    <div class="input-panel">
+    <h1>Chennai Trip Group Budget</h1>
+    <p class="subtitle">Split costs dynamically & Download Individual Reports</p>
+
+    <!-- 1. STUDENTS SECTION -->
+    <div class="section-title">Team Members</div>
+    <div class="students-wrapper" id="studentsContainer">
+        <!-- Students generated here by JS -->
+        <button class="btn-add-student" onclick="addNewStudent()">+</button>
+    </div>
+
+    <!-- 2. INPUT SECTION -->
+    <div class="section-title">Add Expense</div>
+    <div class="input-grid">
         <div>
-            <label style="font-size: 12px;">Date</label>
-            <input type="date" id="date" min="2026-02-05" max="2026-02-09" value="2026-02-05">
+            <label>Date</label>
+            <input type="date" id="expDate">
         </div>
         <div>
-            <label style="font-size: 12px;">Category</label>
-            <select id="category" onchange="updateSubOptions()">
+            <label>Category</label>
+            <select id="expCat" onchange="updateOptions()">
                 <option value="Travel">Travel</option>
                 <option value="Food">Food</option>
-                <option value="Expo">Expo/College</option>
-                <option value="Entertainment">Entertainment</option>
-                <option value="Fun">Fun/Social</option>
                 <option value="Stay">Stay</option>
+                <option value="Expo">Expo/College</option>
+                <option value="Fun">Fun</option>
                 <option value="Others">Others</option>
             </select>
         </div>
         <div>
-            <label style="font-size: 12px;">Option</label>
-            <select id="subCategory"></select>
+            <label>Option</label>
+            <select id="expSub">
+                <!-- Filled by JS -->
+            </select>
         </div>
         <div>
-            <label style="font-size: 12px;">Details</label>
-            <input type="text" id="details" placeholder="e.g. Marina Beach snacks">
+            <label>Details</label>
+            <input type="text" id="expDetails" placeholder="e.g. Dinner">
         </div>
         <div>
-            <label style="font-size: 12px;">Amount (₹)</label>
-            <input type="number" id="amount" placeholder="0">
+            <label>Total Amount (₹)</label>
+            <input type="number" id="expAmount" placeholder="0">
         </div>
-        <div style="display: flex; align-items: flex-end;">
-            <button class="btn btn-add" onclick="addEntry()">Add</button>
+        
+        <!-- Checkboxes -->
+        <div class="checkbox-area" id="checkboxContainer">
+            <label><strong>Split Between:</strong></label>
+            <!-- Filled by JS -->
         </div>
+
+        <button class="btn-primary" onclick="addExpense()">+ Add Expense to List</button>
     </div>
 
-    <table id="budgetTable">
+    <!-- 3. TABLE SECTION -->
+    <table id="expenseTable">
         <thead>
             <tr>
                 <th>Date</th>
                 <th>Category</th>
                 <th>Details</th>
-                <th>Amount</th>
-                <th></th>
+                <th style="text-align:right">Total</th>
+                <th>Shared By</th>
+                <th style="text-align:right">Action</th>
             </tr>
         </thead>
         <tbody id="tableBody"></tbody>
     </table>
 
-    <div class="total-section">
-        <span>Estimated Total Budget Required:</span>
-        <span class="amount-big">₹<span id="grandTotal">0</span></span>
+    <!-- 4. PDF DOWNLOAD SECTION -->
+    <div class="pdf-section">
+        <div class="section-title">Download Individual Reports</div>
+        <div class="pdf-grid" id="pdfButtons">
+            <!-- Buttons generated here -->
+        </div>
     </div>
-
-    <button class="btn btn-pdf" onclick="generatePDF()">Download Budget PDF Report</button>
-    <button class="btn btn-clear" onclick="clearData()">Clear All Data & Start Over</button>
 </div>
 
+<div id="toast">Message</div>
+
 <script>
-    const subOptions = {
-        Travel: ['Metro', 'Bus (MTC)', 'Bike Rental', 'Auto/Ola/Uber', 'Train Ticket'],
-        Food: ['Breakfast', 'Lunch', 'Dinner', 'Filter Coffee/Tea', 'Snacks'],
-        Expo: ['Banner Printing', 'Model Parts', 'Registration Fee', 'Stationery'],
-        Entertainment: ['Sightseeing', 'Marina Beach', 'Movie/Theater', 'Museum Entry'],
-        Fun: ['Team Dinner', 'Games/Bowling', 'Shopping (T.Nagar)', 'Gifts'],
-        Stay: ['Hotel Room', 'Hostel/PG', 'Service Tips'],
-        Others: ['Mobile Recharge', 'Emergency Cash', 'Pharmacy', 'Miscellaneous']
+    // --- DATA ---
+    // Sub-categories mapping
+    const subCats = {
+        Travel: ['Metro', 'Bus', 'Auto', 'Taxi', 'Train'],
+        Food: ['Breakfast', 'Lunch', 'Dinner', 'Snacks', 'Coffee'],
+        Stay: ['Hotel', 'Hostel', 'Lodging'],
+        Expo: ['Entry Fee', 'Materials', 'Printing', 'Registration'],
+        Fun: ['Movies', 'Games', 'Shopping', 'Sightseeing'],
+        Others: ['Emergency', 'Misc', 'Tips']
     };
 
-    let budgetData = JSON.parse(localStorage.getItem('chennai2026_v2')) || [];
+    // State
+    let students = [];
+    let expenses = [];
 
-    function updateSubOptions() {
-        const cat = document.getElementById('category').value;
-        const sub = document.getElementById('subCategory');
-        sub.innerHTML = subOptions[cat].map(opt => `<option value="${opt}">${opt}</option>`).join('');
+    // --- INITIALIZATION ---
+    window.onload = function() {
+        try {
+            // Load Date
+            document.getElementById('expDate').value = new Date().toISOString().split('T')[0];
+            
+            // Load Data from LocalStorage
+            const savedStudents = localStorage.getItem('cb_students');
+            const savedExpenses = localStorage.getItem('cb_expenses');
+
+            if (savedStudents) {
+                students = JSON.parse(savedStudents);
+            } else {
+                // Default 4 students if empty
+                students = [
+                    { id: 1, name: 'Student 1' },
+                    { id: 2, name: 'Student 2' },
+                    { id: 3, name: 'Student 3' },
+                    { id: 4, name: 'Student 4' }
+                ];
+            }
+
+            if (savedExpenses) expenses = JSON.parse(savedExpenses);
+
+        } catch (e) {
+            console.error("Data Load Error", e);
+            alert("There was an error loading saved data. Starting fresh.");
+            students = [{ id: 1, name: 'Student 1' }];
+            expenses = [];
+        }
+
+        // Render Everything
+        updateOptions();
+        renderStudents();
+        renderExpenses();
+        renderPDFButtons();
+    };
+
+    // --- CORE FUNCTIONS ---
+
+    function saveData() {
+        localStorage.setItem('cb_students', JSON.stringify(students));
+        localStorage.setItem('cb_expenses', JSON.stringify(expenses));
     }
 
-    function addEntry() {
-        const date = document.getElementById('date').value;
-        const cat = document.getElementById('category').value;
-        const sub = document.getElementById('subCategory').value;
-        const det = document.getElementById('details').value;
-        const amt = parseFloat(document.getElementById('amount').value || 0);
-
-        if (!det || amt <= 0) { alert("Please enter details and amount"); return; }
-        
-        budgetData.push({ date, cat, sub, det, amt });
-        budgetData.sort((a, b) => new Date(a.date) - new Date(b.date));
-        saveAndRender();
-        document.getElementById('details').value = '';
-        document.getElementById('amount').value = '';
+    function updateOptions() {
+        const cat = document.getElementById('expCat').value;
+        const subSelect = document.getElementById('expSub');
+        subSelect.innerHTML = subCats[cat].map(opt => `<option>${opt}</option>`).join('');
     }
 
-    function saveAndRender() {
-        localStorage.setItem('chennai2026_v2', JSON.stringify(budgetData));
-        const body = document.getElementById('tableBody');
-        body.innerHTML = '';
-        let total = 0;
-        
-        budgetData.forEach((item, index) => {
-            total += item.amt;
-            body.innerHTML += `
+    // --- STUDENT MANAGEMENT ---
+
+    function renderStudents() {
+        const container = document.getElementById('studentsContainer');
+        const checkboxContainer = document.getElementById('checkboxContainer');
+        const pdfContainer = document.getElementById('pdfButtons');
+
+        // 1. Render Cards (keep the "+" button at the end)
+        let cardsHTML = '';
+        students.forEach((s, index) => {
+            cardsHTML += `
+                <div class="student-card">
+                    <div class="remove-student" onclick="removeStudent(${index})" title="Remove Student">✕</div>
+                    <input type="text" value="${s.name}" onchange="renameStudent(${index}, this.value)">
+                    <div style="font-size:12px; color:#64748b;">Total Share</div>
+                    <div class="student-total" id="total-${index}">₹0</div>
+                </div>
+            `;
+        });
+        // Insert before the "+" button
+        container.innerHTML = cardsHTML + '<button class="btn-add-student" onclick="addNewStudent()">+</button>';
+
+        // 2. Render Checkboxes in Input Form
+        if(students.length > 0) {
+            let checksHTML = '<label style="font-weight:bold; margin-right:20px;">Split Cost:</label>';
+            students.forEach((s, index) => {
+                checksHTML += `
+                    <label>
+                        <input type="checkbox" class="split-check" value="${index}" checked>
+                        ${s.name}
+                    </label>
+                `;
+            });
+            checkboxContainer.innerHTML = checksHTML;
+        } else {
+            checkboxContainer.innerHTML = '<span style="color:red; font-size:12px;">Please add students above first.</span>';
+        }
+
+        // 3. Render PDF Buttons
+        renderPDFButtons();
+    }
+
+    function addNewStudent() {
+        const nextNum = students.length + 1;
+        students.push({ id: Date.now(), name: `Student ${nextNum}` });
+        saveData();
+        renderStudents();
+    }
+
+    function removeStudent(index) {
+        if(confirm(`Remove ${students[index].name}? Their expenses will need to be reassigned manually.`)) {
+            students.splice(index, 1);
+            saveData();
+            renderStudents();
+            renderExpenses(); // Recalculate totals
+        }
+    }
+
+    function renameStudent(index, newName) {
+        students[index].name = newName;
+        saveData();
+        renderStudents(); // Re-render to update names in table/PDF buttons
+        renderExpenses();
+    }
+
+    // --- EXPENSE MANAGEMENT ---
+
+    function addExpense() {
+        if(students.length === 0) { showToast("Please add at least one student first."); return; }
+
+        const date = document.getElementById('expDate').value;
+        const cat = document.getElementById('expCat').value;
+        const sub = document.getElementById('expSub').value;
+        const det = document.getElementById('expDetails').value;
+        const amt = parseFloat(document.getElementById('expAmount').value);
+
+        // Get checked students
+        const checks = document.querySelectorAll('.split-check:checked');
+        const participantIndices = Array.from(checks).map(c => parseInt(c.value));
+
+        if(!date || !det || isNaN(amt) || amt <= 0) {
+            showToast("Please fill all fields correctly.");
+            return;
+        }
+        if(participantIndices.length === 0) {
+            showToast("Please select at least one person to split the cost with.");
+            return;
+        }
+
+        // Create participation array (boolean for each student index)
+        const participation = new Array(students.length).fill(false);
+        participantIndices.forEach(idx => participation[idx] = true);
+
+        expenses.push({
+            id: Date.now(),
+            date, cat, sub, det, amt,
+            participation
+        });
+
+        // Reset input
+        document.getElementById('expDetails').value = '';
+        document.getElementById('expAmount').value = '';
+        // Reset checks to all true
+        document.querySelectorAll('.split-check').forEach(c => c.checked = true);
+
+        saveData();
+        renderExpenses();
+        showToast("Expense Added!");
+    }
+
+    function deleteExpense(id) {
+        if(confirm("Delete this expense?")) {
+            expenses = expenses.filter(e => e.id !== id);
+            saveData();
+            renderExpenses();
+        }
+    }
+
+    function renderExpenses() {
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '';
+
+        // Reset student totals
+        let studentTotals = new Array(students.length).fill(0);
+
+        if(expenses.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#999;">No expenses recorded yet.</td></tr>';
+        }
+
+        expenses.forEach(exp => {
+            const involvedCount = exp.participation.filter(Boolean).length;
+            const sharePerPerson = involvedCount > 0 ? exp.amt / involvedCount : 0;
+
+            // Update totals
+            exp.participation.forEach((isIn, idx) => {
+                if(isIn) studentTotals[idx] += sharePerPerson;
+            });
+
+            // Format Date
+            const dParts = exp.date.split('-');
+            const fDate = `${dParts[2]}/${dParts[1]}/${dParts[0]}`;
+
+            // Get names
+            const names = exp.participation
+                .map((isIn, idx) => isIn ? students[idx].name : null)
+                .filter(n => n)
+                .join(', ');
+
+            tbody.innerHTML += `
                 <tr>
-                    <td>${item.date.split('-').reverse().join('/')}</td>
-                    <td><span class="category-tag tag-${item.cat.toLowerCase()}">${item.sub}</span></td>
-                    <td>${item.det}</td>
-                    <td style="font-weight:bold">₹${item.amt.toLocaleString()}</td>
-                    <td><button style="background:none; border:none; color:red; cursor:pointer;" onclick="deleteItem(${index})">✕</button></td>
+                    <td>${fDate}</td>
+                    <td><small>${exp.cat}</small><br><b>${exp.sub}</b></td>
+                    <td>${exp.det}</td>
+                    <td class="amount">₹${exp.amt}</td>
+                    <td style="font-size:12px; color:#64748b;">${names}</td>
+                    <td style="text-align:right;">
+                        <button onclick="deleteExpense(${exp.id})" style="color:red; background:none; border:none; cursor:pointer;">✕</button>
+                    </td>
                 </tr>
             `;
         });
-        document.getElementById('grandTotal').innerText = total.toLocaleString();
+
+        // Update Total Cards
+        students.forEach((_, idx) => {
+            const el = document.getElementById(`total-${idx}`);
+            if(el) el.innerText = "₹" + studentTotals[idx].toFixed(2);
+        });
     }
 
-    function deleteItem(i) { budgetData.splice(i, 1); saveAndRender(); }
-    function clearData() { if(confirm("Are you sure? This will delete your entire plan.")) { budgetData = []; saveAndRender(); } }
+    function renderPDFButtons() {
+        const container = document.getElementById('pdfButtons');
+        container.innerHTML = '';
+        students.forEach((s, idx) => {
+            const btn = document.createElement('button');
+            btn.className = 'btn-pdf';
+            btn.innerText = `Download ${s.name}'s Report`;
+            btn.onclick = () => downloadPDF(idx);
+            container.appendChild(btn);
+        });
+    }
 
-    function generatePDF() {
+    // --- PDF LOGIC ---
+
+    function downloadPDF(studentIndex) {
+        const student = students[studentIndex];
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
-        doc.setFontSize(20);
-        doc.text("Chennai Trip Budget Plan", 14, 20);
-        doc.setFontSize(10);
-        doc.text("Dates: Feb 05 - Feb 09, 2026", 14, 28);
 
-        const rows = budgetData.map(d => [d.date, d.cat + " (" + d.sub + ")", d.det, `Rs. ${d.amt}`]);
-        
-        doc.autoTable({
-            startY: 35,
-            head: [['Date', 'Category', 'Details', 'Amount']],
-            body: rows,
-            foot: [['Total', '', '', `Rs. ${document.getElementById('grandTotal').innerText}`]],
-            theme: 'grid'
+        // Filter expenses for this student
+        const myExpenses = expenses.filter(e => e.participation[studentIndex]);
+        let myTotal = 0;
+
+        const rows = myExpenses.map(e => {
+            const involvedCount = e.participation.filter(Boolean).length;
+            const share = e.amt / involvedCount;
+            myTotal += share;
+            
+            const [y, m, d] = e.date.split('-');
+            return [
+                `${d}/${m}/${y}`,
+                e.cat,
+                e.det,
+                `₹${e.amt} (Split by ${involvedCount})`,
+                `₹${share.toFixed(2)}`
+            ];
         });
-        doc.save("Chennai_Conference_Budget.pdf");
+
+        // Header
+        doc.setFillColor(37, 99, 235);
+        doc.rect(0, 0, 210, 40, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(22);
+        doc.text(`Expense Report: ${student.name}`, 14, 20);
+        doc.setFontSize(12);
+        doc.text("Chennai Trip - Individual Breakdown", 14, 30);
+
+        // Table
+        doc.autoTable({
+            startY: 45,
+            head: [['Date', 'Category', 'Details', 'Total Bill', 'Your Share']],
+            body: rows,
+            foot: [['', '', '', 'TOTAL PAYABLE:', `₹${myTotal.toFixed(2)}`]],
+            theme: 'grid',
+            headStyles: { fillColor: [30, 41, 59] },
+            footStyles: { fillColor: [241, 245, 249], textColor: 0, fontStyle: 'bold' }
+        });
+
+        doc.save(`Report_${student.name.replace(/\s/g, '_')}.pdf`);
     }
 
-    updateSubOptions();
-    saveAndRender();
+    // --- UTILS ---
+    function showToast(msg) {
+        const x = document.getElementById("toast");
+        x.innerText = msg;
+        x.className = "show";
+        setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+    }
 </script>
+
 </body>
 </html>
